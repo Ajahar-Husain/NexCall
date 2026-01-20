@@ -1,7 +1,7 @@
 import React, { useContext, useEffect, useState } from 'react'
 import { AuthContext } from '../contexts/AuthContext'
 import { useNavigate } from 'react-router-dom';
-import { Card, CardContent, Typography, Grid, Container, Button, Box, Divider } from '@mui/material';
+import { Card, CardContent, Typography, Grid, Container, Button, Box } from '@mui/material';
 import HistoryIcon from '@mui/icons-material/History';
 import ArrowForwardIcon from '@mui/icons-material/ArrowForward';
 
@@ -20,7 +20,7 @@ export default function History() {
             }
         }
         fetchHistory();
-    }, [])
+    }, [getHistoryOfUser])
 
     let formatDate = (dateString) => {
         const date = new Date(dateString);
