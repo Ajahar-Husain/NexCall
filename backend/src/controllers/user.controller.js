@@ -9,7 +9,11 @@ const login = async (req, res) => {
     const { username, password } = req.body;
 
     if (!username || !password) {
-        return res.status(400).json({ message: "Please Provide" })
+        return res.status(400).json({ message: "Please provide username and password" })
+    }
+
+    if (typeof username !== 'string' || typeof password !== 'string') {
+        return res.status(400).json({ message: "Invalid input" })
     }
 
     try {
@@ -40,6 +44,13 @@ const login = async (req, res) => {
 const register = async (req, res) => {
     const { name, username, password } = req.body;
 
+    if (!name || !username || !password) {
+        return res.status(400).json({ message: "Please provide name, username and password" })
+    }
+
+    if (typeof name !== 'string' || typeof username !== 'string' || typeof password !== 'string') {
+        return res.status(400).json({ message: "Invalid input" })
+    }
 
     try {
         const existingUser = await User.findOne({ username });
@@ -69,20 +80,34 @@ const register = async (req, res) => {
 const getUserHistory = async (req, res) => {
     const { token } = req.query;
 
+    if (!token) {
+        return res.status(400).json({ message: "Token is required" })
+    }
+
     try {
         const user = await User.findOne({ token: token });
+        if (!user) {
+            return res.status(httpStatus.UNAUTHORIZED).json({ message: "Invalid token" })
+        }
         const meetings = await Meeting.find({ user_id: user.username })
         res.json(meetings)
     } catch (e) {
-        res.json({ message: `Something went wrong ${e}` })
+        res.status(500).json({ message: `Something went wrong ${e}` })
     }
 }
 
 const addToHistory = async (req, res) => {
     const { token, meeting_code } = req.body;
 
+    if (!token || !meeting_code) {
+        return res.status(400).json({ message: "Token and meeting code are required" })
+    }
+
     try {
         const user = await User.findOne({ token: token });
+        if (!user) {
+            return res.status(httpStatus.UNAUTHORIZED).json({ message: "Invalid token" })
+        }
 
         const newMeeting = new Meeting({
             user_id: user.username,
@@ -93,7 +118,7 @@ const addToHistory = async (req, res) => {
 
         res.status(httpStatus.CREATED).json({ message: "Added code to history" })
     } catch (e) {
-        res.json({ message: `Something went wrong ${e}` })
+        res.status(500).json({ message: `Something went wrong ${e}` })
     }
 }
 

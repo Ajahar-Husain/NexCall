@@ -1,153 +1,171 @@
 import React, { useState, useEffect } from 'react';
-import { AppBar, Toolbar, Typography, Button, IconButton, Box, Drawer, List, ListItem, ListItemText, useScrollTrigger, Slide } from '@mui/material';
+import { AppBar, Toolbar, Typography, Button, IconButton, Box, Drawer, List, ListItem, ListItemText, Chip } from '@mui/material';
 import MenuIcon from '@mui/icons-material/Menu';
-import { Link, useNavigate } from 'react-router-dom';
-import { motion } from 'framer-motion';
+import VideoCallIcon from '@mui/icons-material/VideoCall';
+import CloseIcon from '@mui/icons-material/Close';
+import { useNavigate, useLocation } from 'react-router-dom';
+import { motion, AnimatePresence } from 'framer-motion';
 
-function HideOnScroll(props) {
-    const { children, window } = props;
-    const trigger = useScrollTrigger({
-        target: window ? window() : undefined,
-    });
-
-    return (
-        <Slide appear={false} direction="down" in={!trigger}>
-            {children}
-        </Slide>
-    );
-}
-
-export default function Navbar(props) {
+export default function Navbar() {
     const navigate = useNavigate();
+    const location = useLocation();
     const [mobileOpen, setMobileOpen] = useState(false);
     const [isAuth, setIsAuth] = useState(false);
+    const [scrolled, setScrolled] = useState(false);
 
     useEffect(() => {
-        if (localStorage.getItem("token")) {
-            setIsAuth(true);
-        } else {
-            setIsAuth(false);
-        }
-    }, [])
+        setIsAuth(!!localStorage.getItem("token"));
+    }, [location]);
 
-
-    const handleDrawerToggle = () => {
-        setMobileOpen(!mobileOpen);
-    };
+    useEffect(() => {
+        const onScroll = () => setScrolled(window.scrollY > 20);
+        window.addEventListener('scroll', onScroll);
+        return () => window.removeEventListener('scroll', onScroll);
+    }, []);
 
     const handleLogout = () => {
         localStorage.removeItem("token");
         setIsAuth(false);
         navigate("/auth");
-    }
+    };
 
     const navItems = isAuth
         ? [
-            { label: 'Join Video', path: '/home' },
+            { label: 'Dashboard', path: '/home' },
             { label: 'History', path: '/history' },
-            { label: 'Logout', action: handleLogout }
+            { label: 'Logout', action: handleLogout, highlight: true }
         ]
         : [
-            { label: 'Join as Guest', path: '/aljk23' },
-            { label: 'Register', path: '/auth' },
-            { label: 'Login', path: '/auth' }
+            { label: 'Guest Join', path: '/aljk23' },
+            { label: 'Login', path: '/auth' },
+            { label: 'Sign Up', path: '/auth', highlight: true }
         ];
 
-    const drawer = (
-        <Box onClick={handleDrawerToggle} sx={{ textAlign: 'center' }}>
-            <Typography variant="h6" sx={{ my: 2 }}>
-                NexCall
-            </Typography>
-            <List>
-                {navItems.map((item) => (
-                    <ListItem key={item.label} disablePadding onClick={item.action ? item.action : () => navigate(item.path)}>
-                        <ListItemText primary={item.label} sx={{ textAlign: 'center', cursor: 'pointer' }} />
-                    </ListItem>
-                ))}
-            </List>
-        </Box>
-    );
-
     return (
-        <Box sx={{ display: 'flex' }}>
-            <HideOnScroll {...props}>
-                <AppBar component="nav" sx={{ background: 'rgba(255, 255, 255, 0.8)', backdropFilter: 'blur(10px)', boxShadow: 'none' }}>
-                    <Toolbar>
-                        <IconButton
-                            color="inherit"
-                            aria-label="open drawer"
-                            edge="start"
-                            onClick={handleDrawerToggle}
-                            sx={{ mr: 2, display: { sm: 'none' }, color: 'black' }}
-                        >
-                            <MenuIcon />
-                        </IconButton>
+        <>
+            <AppBar
+                component="nav"
+                elevation={0}
+                sx={{
+                    background: scrolled
+                        ? 'rgba(10,10,15,0.95)'
+                        : 'rgba(10,10,15,0.7)',
+                    backdropFilter: 'blur(20px)',
+                    borderBottom: '1px solid rgba(255,255,255,0.06)',
+                    transition: 'background 0.3s ease',
+                }}
+            >
+                <Toolbar sx={{ py: 1, px: { xs: 2, md: 4 } }}>
+                    {/* Logo */}
+                    <Box
+                        onClick={() => navigate('/')}
+                        sx={{ display: 'flex', alignItems: 'center', gap: 1, cursor: 'pointer', flexGrow: 1 }}
+                    >
+                        <Box sx={{
+                            width: 34, height: 34, borderRadius: '10px',
+                            background: 'linear-gradient(135deg, #FF9839, #FF4B2B)',
+                            display: 'flex', alignItems: 'center', justifyContent: 'center',
+                            boxShadow: '0 4px 15px rgba(255,152,57,0.4)'
+                        }}>
+                            <VideoCallIcon sx={{ color: '#fff', fontSize: 20 }} />
+                        </Box>
                         <Typography
                             variant="h6"
-                            component="div"
-                            sx={{ flexGrow: 1, display: { xs: 'none', sm: 'block' }, color: 'black', fontWeight: 'bold', cursor: 'pointer' }}
-                            onClick={() => navigate('/')}
+                            sx={{ fontWeight: 800, color: '#fff', letterSpacing: '-0.5px', fontFamily: 'Inter' }}
                         >
-                            NexCall
+                            Nex<span style={{ color: '#FF9839' }}>Call</span>
                         </Typography>
-                        <Box sx={{ display: { xs: 'none', sm: 'flex' }, gap: 2 }}>
-                            {navItems.map((item) => (
-                                <Box
-                                    key={item.label}
-                                    component={motion.div}
-                                    whileHover={{ scale: 1.1 }}
-                                    whileTap={{ scale: 0.95 }}
-                                >
+                    </Box>
+
+                    {/* Desktop nav */}
+                    <Box sx={{ display: { xs: 'none', sm: 'flex' }, alignItems: 'center', gap: 1 }}>
+                        {navItems.map((item) => (
+                            <motion.div key={item.label} whileHover={{ scale: 1.03 }} whileTap={{ scale: 0.97 }}>
+                                {item.highlight ? (
                                     <Button
-                                        onClick={item.action ? item.action : () => navigate(item.path)}
+                                        onClick={item.action || (() => navigate(item.path))}
+                                        variant="contained"
+                                        size="small"
                                         sx={{
-                                            color: '#333',
+                                            background: 'linear-gradient(135deg, #FF9839, #FF4B2B)',
+                                            color: '#fff',
                                             fontWeight: 600,
-                                            position: 'relative',
-                                            '&::after': {
-                                                content: '""',
-                                                position: 'absolute',
-                                                width: '0%',
-                                                height: '2px',
-                                                bottom: 0,
-                                                left: '50%',
-                                                transform: 'translateX(-50%)',
-                                                backgroundColor: '#FF9839',
-                                                transition: 'width 0.3s ease-in-out'
-                                            },
-                                            '&:hover::after': {
-                                                width: '80%'
-                                            },
-                                            '&:hover': {
-                                                backgroundColor: 'transparent',
-                                                color: '#FF9839'
-                                            }
+                                            borderRadius: '8px',
+                                            px: 2.5,
+                                            py: 0.8,
+                                            textTransform: 'none',
+                                            fontSize: '0.875rem',
+                                            boxShadow: '0 4px 15px rgba(255,75,43,0.3)',
+                                            '&:hover': { background: 'linear-gradient(135deg, #e68932, #e03c1e)', boxShadow: '0 6px 20px rgba(255,75,43,0.5)' }
                                         }}
                                     >
                                         {item.label}
                                     </Button>
-                                </Box>
-                            ))}
-                        </Box>
-                    </Toolbar>
-                </AppBar>
-            </HideOnScroll>
-            <Box component="nav">
-                <Drawer
-                    variant="temporary"
-                    open={mobileOpen}
-                    onClose={handleDrawerToggle}
-                    ModalProps={{
-                        keepMounted: true, // Better open performance on mobile.
-                    }}
-                    sx={{
-                        display: { xs: 'block', sm: 'none' },
-                        '& .MuiDrawer-paper': { boxSizing: 'border-box', width: 240 },
-                    }}
-                >
-                    {drawer}
-                </Drawer>
-            </Box>
-        </Box>
+                                ) : (
+                                    <Button
+                                        onClick={item.action || (() => navigate(item.path))}
+                                        sx={{
+                                            color: location.pathname === item.path ? '#FF9839' : 'rgba(255,255,255,0.7)',
+                                            fontWeight: 500,
+                                            textTransform: 'none',
+                                            fontSize: '0.875rem',
+                                            borderRadius: '8px',
+                                            px: 2,
+                                            '&:hover': { color: '#fff', background: 'rgba(255,255,255,0.06)' }
+                                        }}
+                                    >
+                                        {item.label}
+                                    </Button>
+                                )}
+                            </motion.div>
+                        ))}
+                    </Box>
+
+                    {/* Mobile hamburger */}
+                    <IconButton
+                        onClick={() => setMobileOpen(true)}
+                        sx={{ display: { sm: 'none' }, color: 'rgba(255,255,255,0.8)' }}
+                    >
+                        <MenuIcon />
+                    </IconButton>
+                </Toolbar>
+            </AppBar>
+
+            {/* Mobile Drawer */}
+            <Drawer
+                anchor="right"
+                open={mobileOpen}
+                onClose={() => setMobileOpen(false)}
+                PaperProps={{
+                    sx: {
+                        width: 260,
+                        background: 'rgba(15,15,20,0.98)',
+                        backdropFilter: 'blur(20px)',
+                        borderLeft: '1px solid rgba(255,255,255,0.08)',
+                        pt: 2
+                    }
+                }}
+            >
+                <Box sx={{ display: 'flex', justifyContent: 'flex-end', px: 2, mb: 2 }}>
+                    <IconButton onClick={() => setMobileOpen(false)} sx={{ color: 'rgba(255,255,255,0.6)' }}>
+                        <CloseIcon />
+                    </IconButton>
+                </Box>
+                <List>
+                    {navItems.map((item) => (
+                        <ListItem
+                            key={item.label}
+                            onClick={() => { setMobileOpen(false); item.action ? item.action() : navigate(item.path); }}
+                            sx={{ cursor: 'pointer', '&:hover': { background: 'rgba(255,152,57,0.1)' }, borderRadius: 2, mx: 1, mb: 0.5 }}
+                        >
+                            <ListItemText
+                                primary={item.label}
+                                primaryTypographyProps={{ color: item.highlight ? '#FF9839' : 'rgba(255,255,255,0.85)', fontWeight: item.highlight ? 700 : 500 }}
+                            />
+                        </ListItem>
+                    ))}
+                </List>
+            </Drawer>
+        </>
     );
 }

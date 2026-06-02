@@ -1,0 +1,729 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8"/>
+<meta name="viewport" content="width=device-width,initial-scale=1.0"/>
+<title>NexCall – Project Presentation</title>
+<link href="https://fonts.googleapis.com/css2?family=Inter:wght@300;400;600;700;900&family=Fira+Code:wght@400;500&display=swap" rel="stylesheet"/>
+<style>
+*{margin:0;padding:0;box-sizing:border-box}
+:root{
+  --bg:#0d1b2a;--card:#132638;--accent:#00c8ff;--accent2:#7c3aed;
+  --white:#fff;--light:#b0c4de;--footer:#809ab4;--yellow:#ffd700;
+  --green:#00e676;--red:#ff4585;--orange:#ff6b35;
+}
+html,body{width:100%;height:100%;overflow:hidden;font-family:'Inter',sans-serif;background:var(--bg)}
+
+/* ── Slideshow Shell ── */
+#deck{width:100vw;height:100vh;position:relative}
+.slide{
+  position:absolute;inset:0;display:none;flex-direction:column;
+  background:var(--bg);padding:0 0 52px 0;overflow:hidden;
+}
+.slide.active{display:flex}
+
+/* ── Footer ── */
+footer{
+  position:fixed;bottom:0;left:0;right:0;height:44px;
+  background:#070f18;border-top:2px solid var(--accent);
+  display:flex;align-items:center;justify-content:space-between;
+  padding:0 24px;z-index:999;
+}
+footer a{color:var(--footer);font-size:11px;text-decoration:none;transition:color .2s}
+footer a:hover{color:var(--accent)}
+footer .slide-count{color:var(--footer);font-size:11px}
+
+/* ── Nav buttons ── */
+#nav{position:fixed;bottom:10px;right:24px;display:flex;gap:10px;z-index:1000}
+#nav button{
+  background:var(--card);border:1px solid var(--accent);color:var(--accent);
+  padding:6px 18px;border-radius:6px;cursor:pointer;font-size:13px;font-family:'Inter',sans-serif;
+  transition:background .2s;
+}
+#nav button:hover{background:var(--accent);color:#0d1b2a}
+
+/* ── Progress bar ── */
+#progress{position:fixed;top:0;left:0;height:3px;background:var(--accent);z-index:1000;transition:width .3s}
+
+/* ── Utilities ── */
+.accent{color:var(--accent)}
+.accent2{color:var(--accent2)}
+.yellow{color:var(--yellow)}
+.green{color:var(--green)}
+.light{color:var(--light)}
+.hline{height:2px;background:linear-gradient(90deg,var(--accent),var(--accent2),transparent);margin:6px 0 18px}
+.card{background:var(--card);border-radius:12px;padding:20px;border:1px solid rgba(0,200,255,.1)}
+.pill{background:var(--card);border:1px solid rgba(0,200,255,.15);border-radius:8px;padding:7px 14px;font-size:12px;color:var(--white);display:inline-block}
+.tag{display:inline-block;border-radius:4px;padding:3px 10px;font-size:11px;font-weight:700}
+h1.slide-title{font-size:2.2rem;font-weight:900;padding:28px 40px 0;letter-spacing:-.5px}
+.body-area{flex:1;overflow:hidden;padding:0 40px}
+
+/* ── Grid helpers ── */
+.cols2{display:grid;grid-template-columns:1fr 1fr;gap:18px}
+.cols3{display:grid;grid-template-columns:1fr 1fr 1fr;gap:16px}
+
+/* ─────────────────────── SLIDE 1 – TITLE ─────────────────────── */
+#s1{flex-direction:row;padding:0}
+#s1 .left{
+  width:45%;background:var(--card);display:flex;flex-direction:column;
+  justify-content:center;padding:50px 44px 60px;border-right:3px solid var(--accent);
+}
+#s1 .left h1{font-size:4.5rem;font-weight:900;color:var(--accent);line-height:1;margin-bottom:12px}
+#s1 .left .tagline{font-size:1.15rem;color:var(--white);margin-bottom:30px}
+#s1 .left .presenter{margin-top:auto;padding-top:30px;border-top:1px solid rgba(0,200,255,.2)}
+#s1 .right{flex:1;display:flex;flex-direction:column;justify-content:center;padding:50px 40px;gap:14px}
+#s1 .right h2{font-size:1.3rem;font-weight:700;color:var(--accent2);margin-bottom:8px}
+.feature-item{display:flex;align-items:center;gap:12px;padding:10px 16px;background:rgba(0,200,255,.05);border-left:3px solid var(--accent);border-radius:0 8px 8px 0;font-size:14px;color:var(--light)}
+
+/* ─────────────────────── SLIDE 2 – AGENDA ─────────────────────── */
+.agenda-grid{display:grid;grid-template-columns:1fr 1fr;gap:10px;margin-top:4px}
+.agenda-item{display:flex;align-items:center;gap:12px;padding:10px 14px;background:var(--card);border-radius:8px;border:1px solid rgba(0,200,255,.08)}
+.agenda-num{width:32px;height:32px;background:var(--accent2);border-radius:6px;display:flex;align-items:center;justify-content:center;font-size:12px;font-weight:700;color:#fff;flex-shrink:0}
+.agenda-text{font-size:13px;color:var(--white)}
+
+/* ─────────────────────── SLIDES 3+ general ─────────────────────── */
+.two-panel{display:grid;grid-template-columns:1fr 1fr;gap:18px;height:100%}
+.panel{background:var(--card);border-radius:12px;padding:20px;border:1px solid rgba(0,200,255,.1);overflow:hidden}
+.panel h3{font-size:1rem;font-weight:700;margin-bottom:14px}
+ul.pts{list-style:none;display:flex;flex-direction:column;gap:8px}
+ul.pts li{font-size:13px;color:var(--light);padding-left:16px;position:relative;line-height:1.4}
+ul.pts li::before{content:"▸";position:absolute;left:0;color:var(--accent)}
+
+/* TECH STACK */
+.stack-row{display:flex;align-items:center;gap:10px;padding:8px 0;border-bottom:1px solid rgba(255,255,255,.05)}
+.stack-label{width:150px;flex-shrink:0;font-size:12px;font-weight:700;color:var(--white)}
+.pills{display:flex;flex-wrap:wrap;gap:6px}
+
+/* DB SCHEMA */
+.schema-field{display:flex;gap:12px;padding:7px 10px;background:rgba(0,0,0,.25);border-radius:6px;font-size:12px;font-family:'Fira Code',monospace}
+.field-name{color:var(--accent);width:120px;flex-shrink:0}
+.field-type{color:var(--yellow);width:80px;flex-shrink:0}
+.field-note{color:var(--light)}
+
+/* ARCHITECTURE */
+.arch-box{background:var(--card);border:1px solid rgba(0,200,255,.2);border-radius:10px;padding:12px 16px;text-align:center}
+.arch-box .title{font-size:13px;font-weight:700;color:var(--white)}
+.arch-box .sub{font-size:11px;color:var(--light);margin-top:3px}
+.arch-arrow{display:flex;align-items:center;justify-content:center;font-size:11px;color:var(--accent);font-style:italic;padding:4px}
+
+/* CHALLENGES */
+.ch-row{background:var(--card);border-radius:8px;padding:12px 16px;border-left:3px solid var(--yellow);display:grid;grid-template-columns:180px 1fr 1fr;gap:14px;align-items:start}
+.ch-title{font-size:12px;font-weight:700;color:var(--yellow)}
+.ch-problem{font-size:11px;color:#ff8080;line-height:1.4}
+.ch-solution{font-size:11px;color:var(--green);line-height:1.4}
+
+/* FEATURES CARDS */
+.feat-card{background:var(--card);border-radius:10px;padding:16px;border-top:3px solid var(--accent);border:1px solid rgba(0,200,255,.1)}
+.feat-card h4{font-size:14px;font-weight:700;color:var(--accent);margin-bottom:8px}
+.feat-card p{font-size:12px;color:var(--light);line-height:1.5}
+
+/* WEBRTC */
+.step-item{display:flex;gap:12px;align-items:flex-start;padding:7px 0;border-bottom:1px solid rgba(255,255,255,.04)}
+.step-num{width:24px;height:24px;background:var(--accent);border-radius:50%;display:flex;align-items:center;justify-content:center;font-size:10px;font-weight:700;color:#0d1b2a;flex-shrink:0;margin-top:1px}
+.step-text{font-size:12.5px;color:var(--light);line-height:1.4}
+
+/* DEPLOY */
+.deploy-card{background:var(--card);border-radius:12px;padding:20px;border-top:4px solid var(--accent)}
+.deploy-card h3{font-size:1.1rem;font-weight:700;margin-bottom:4px}
+.deploy-card .sub{font-size:11px;font-style:italic;color:var(--light);margin-bottom:14px}
+
+/* FUTURE */
+.future-item{background:var(--card);border-radius:8px;padding:12px 16px;border-left:3px solid var(--accent2);display:flex;gap:12px;align-items:flex-start}
+.future-icon{font-size:20px;flex-shrink:0}
+.future-text h4{font-size:13px;font-weight:700;color:var(--accent);margin-bottom:3px}
+.future-text p{font-size:11.5px;color:var(--light);line-height:1.4}
+
+/* THANK YOU */
+#s14{justify-content:center;align-items:center;text-align:center;padding-bottom:52px}
+#s14 .big{font-size:4rem;font-weight:900;color:var(--white);line-height:1}
+#s14 .sub{font-size:1.3rem;color:var(--accent);margin:14px 0 36px;font-style:italic}
+#s14 .qa{font-size:2.5rem;font-weight:900;color:var(--accent2);margin-bottom:12px}
+#s14 .contact{margin-top:32px;font-size:15px;color:var(--light)}
+#s14 .contact strong{color:var(--yellow)}
+
+@keyframes fadeIn{from{opacity:0;transform:translateY(16px)}to{opacity:1;transform:translateY(0)}}
+.slide.active .body-area,.slide.active .left,.slide.active .right,.slide.active #s14>*{animation:fadeIn .4s ease both}
+</style>
+</head>
+<body>
+
+<div id="progress"></div>
+
+<!-- ═══════════════ SLIDE 1 – TITLE ═══════════════ -->
+<div class="slide active" id="s1">
+  <div class="left">
+    <h1>NexCall</h1>
+    <div class="tagline">Advanced Video Meeting Application</div>
+    <div style="display:flex;gap:8px;flex-wrap:wrap;margin-bottom:20px">
+      <span class="tag" style="background:#00c8ff22;color:var(--accent)">WebRTC</span>
+      <span class="tag" style="background:#7c3aed22;color:var(--accent2)">React</span>
+      <span class="tag" style="background:#00e67622;color:var(--green)">Node.js</span>
+      <span class="tag" style="background:#ffd70022;color:var(--yellow)">Socket.io</span>
+      <span class="tag" style="background:#ff6b3522;color:var(--orange)">MongoDB</span>
+    </div>
+    <div class="presenter">
+      <div style="font-size:17px;font-weight:700;color:var(--yellow)">👤 Ajahar Husain</div>
+      <div style="font-size:13px;color:var(--light);margin-top:4px">Full-Stack Developer</div>
+    </div>
+  </div>
+  <div class="right">
+    <h2>Project Highlights</h2>
+    <div class="feature-item">📹 HD Video &amp; Audio – WebRTC Peer-to-Peer calls</div>
+    <div class="feature-item">🖥️ Screen Sharing – One-click, no plugins</div>
+    <div class="feature-item">💬 Real-time Chat – Socket.io powered in-meeting chat</div>
+    <div class="feature-item">🔐 Secure Auth – JWT + bcrypt authentication</div>
+    <div class="feature-item">🌙 Glassmorphism UI – Framer Motion animations</div>
+    <div class="feature-item">📜 Meeting History – Logged per user in MongoDB</div>
+    <div class="feature-item">☁️ Deployed – Vercel (frontend) + Render (backend)</div>
+  </div>
+  <footer>
+    <a href="https://github.com/Ajahar-Husain" target="_blank">🔗 github.com/Ajahar-Husain</a>
+    <span class="slide-count" id="sc1">1 / 14</span>
+    <a href="https://www.linkedin.com/in/ajahar-husain/" target="_blank">💼 linkedin.com/in/ajahar-husain</a>
+  </footer>
+</div>
+
+<!-- ═══════════════ SLIDE 2 – AGENDA ═══════════════ -->
+<div class="slide" id="s2">
+  <h1 class="slide-title accent">📋 Agenda</h1>
+  <div class="hline" style="margin:6px 40px 14px"></div>
+  <div class="body-area">
+    <div class="agenda-grid">
+      <div class="agenda-item"><div class="agenda-num">01</div><div class="agenda-text">Project Overview &amp; Problem Statement</div></div>
+      <div class="agenda-item"><div class="agenda-num">02</div><div class="agenda-text">Key Features</div></div>
+      <div class="agenda-item"><div class="agenda-num">03</div><div class="agenda-text">System Architecture</div></div>
+      <div class="agenda-item"><div class="agenda-num">04</div><div class="agenda-text">Tech Stack</div></div>
+      <div class="agenda-item"><div class="agenda-num">05</div><div class="agenda-text">Database Design</div></div>
+      <div class="agenda-item"><div class="agenda-num">06</div><div class="agenda-text">Core Modules Walkthrough</div></div>
+      <div class="agenda-item"><div class="agenda-num">07</div><div class="agenda-text">WebRTC &amp; Real-time Communication</div></div>
+      <div class="agenda-item"><div class="agenda-num">08</div><div class="agenda-text">UI / UX Highlights</div></div>
+      <div class="agenda-item"><div class="agenda-num">09</div><div class="agenda-text">Deployment &amp; Infrastructure</div></div>
+      <div class="agenda-item"><div class="agenda-num">10</div><div class="agenda-text">Challenges &amp; Solutions</div></div>
+      <div class="agenda-item"><div class="agenda-num">11</div><div class="agenda-text">Future Scope</div></div>
+      <div class="agenda-item"><div class="agenda-num">12</div><div class="agenda-text">Q &amp; A</div></div>
+    </div>
+  </div>
+  <footer>
+    <a href="https://github.com/Ajahar-Husain" target="_blank">🔗 github.com/Ajahar-Husain</a>
+    <span class="slide-count">2 / 14</span>
+    <a href="https://www.linkedin.com/in/ajahar-husain/" target="_blank">💼 linkedin.com/in/ajahar-husain</a>
+  </footer>
+</div>
+
+<!-- ═══════════════ SLIDE 3 – OVERVIEW ═══════════════ -->
+<div class="slide" id="s3">
+  <h1 class="slide-title accent">🌐 Project Overview</h1>
+  <div class="hline" style="margin:6px 40px 14px"></div>
+  <div class="body-area" style="display:flex;gap:18px;height:calc(100% - 0px)">
+    <div class="panel" style="flex:1">
+      <h3 class="yellow">❓ Problem Statement</h3>
+      <ul class="pts">
+        <li>Existing tools like Zoom/Meet are heavy &amp; proprietary</li>
+        <li>No lightweight, open-source, self-hostable option</li>
+        <li>Limited customisation in enterprise-grade solutions</li>
+        <li>Expensive licensing for small teams &amp; startups</li>
+        <li>Privacy concerns with centralised video platforms</li>
+        <li>Complex setup process discourages self-hosting</li>
+      </ul>
+    </div>
+    <div class="panel" style="flex:1">
+      <h3 class="green">✅ Solution – NexCall</h3>
+      <ul class="pts">
+        <li>Lightweight React SPA with Node.js backend</li>
+        <li>WebRTC for browser-native P2P video calls</li>
+        <li>Open source &amp; fully customisable</li>
+        <li>Self-hostable with free-tier cloud deployment</li>
+        <li>JWT-based secure auth with MongoDB storage</li>
+        <li>Screen sharing, chat — zero plugins needed</li>
+        <li>Responsive — works on any modern browser/device</li>
+      </ul>
+    </div>
+  </div>
+  <footer>
+    <a href="https://github.com/Ajahar-Husain" target="_blank">🔗 github.com/Ajahar-Husain</a>
+    <span class="slide-count">3 / 14</span>
+    <a href="https://www.linkedin.com/in/ajahar-husain/" target="_blank">💼 linkedin.com/in/ajahar-husain</a>
+  </footer>
+</div>
+
+<!-- ═══════════════ SLIDE 4 – KEY FEATURES ═══════════════ -->
+<div class="slide" id="s4">
+  <h1 class="slide-title accent">⭐ Key Features</h1>
+  <div class="hline" style="margin:6px 40px 14px"></div>
+  <div class="body-area">
+    <div class="cols3" style="height:100%">
+      <div class="feat-card" style="border-top-color:var(--accent)">
+        <h4>📹 HD Video &amp; Audio</h4>
+        <p>Crystal-clear WebRTC P2P calls using <code>getUserMedia()</code> with adaptive bitrate. Supports camera toggle and mic mute.</p>
+      </div>
+      <div class="feat-card" style="border-top-color:var(--accent2)">
+        <h4>🖥️ Screen Sharing</h4>
+        <p>One-click full-screen sharing via <code>getDisplayMedia()</code>. Smart stream swap using <code>RTCRtpSender.replaceTrack()</code>.</p>
+      </div>
+      <div class="feat-card" style="border-top-color:var(--green)">
+        <h4>💬 Real-time Chat</h4>
+        <p>In-meeting text chat broadcast via Socket.io. Messages appear instantly for all participants — no page refresh.</p>
+      </div>
+      <div class="feat-card" style="border-top-color:var(--yellow)">
+        <h4>🔐 Secure Authentication</h4>
+        <p>JWT-based login/register with bcrypt password hashing. Token stored in localStorage; all API routes are protected.</p>
+      </div>
+      <div class="feat-card" style="border-top-color:var(--orange)">
+        <h4>🌙 Modern Dark UI</h4>
+        <p>Glassmorphism cards, Framer Motion animations, Material UI components — themed full dark mode.</p>
+      </div>
+      <div class="feat-card" style="border-top-color:var(--red)">
+        <h4>📜 Meeting History</h4>
+        <p>Each joined/created meeting is logged with date &amp; room code per user, queryable from the History page.</p>
+      </div>
+    </div>
+  </div>
+  <footer>
+    <a href="https://github.com/Ajahar-Husain" target="_blank">🔗 github.com/Ajahar-Husain</a>
+    <span class="slide-count">4 / 14</span>
+    <a href="https://www.linkedin.com/in/ajahar-husain/" target="_blank">💼 linkedin.com/in/ajahar-husain</a>
+  </footer>
+</div>
+
+<!-- ═══════════════ SLIDE 5 – ARCHITECTURE ═══════════════ -->
+<div class="slide" id="s5">
+  <h1 class="slide-title accent">🏛️ System Architecture</h1>
+  <div class="hline" style="margin:6px 40px 14px"></div>
+  <div class="body-area" style="display:flex;flex-direction:column;gap:10px">
+    <div style="display:grid;grid-template-columns:200px auto 240px 200px;gap:10px;align-items:center">
+      <div style="display:flex;flex-direction:column;gap:8px">
+        <div class="arch-box" style="border-color:var(--accent2)">
+          <div class="title">Browser A</div><div class="sub">React SPA</div>
+        </div>
+        <div class="arch-box" style="border-color:var(--accent2)">
+          <div class="title">Browser B</div><div class="sub">React SPA</div>
+        </div>
+      </div>
+      <div style="display:flex;flex-direction:column;gap:4px;align-items:center">
+        <div class="arch-arrow">── signalling via Socket.io ──▶</div>
+        <div class="arch-box" style="width:260px;border-color:var(--accent)">
+          <div class="title">Signalling Server</div>
+          <div class="sub">Node.js + Express + Socket.io</div>
+        </div>
+        <div class="arch-arrow">◀── SDP / ICE relay ──</div>
+        <div style="margin-top:12px;font-size:11px;color:var(--accent);font-style:italic;text-align:center">⟵ WebRTC P2P (direct media stream) ⟶</div>
+      </div>
+      <div class="arch-box" style="border-color:var(--green)">
+        <div class="title">MongoDB Atlas</div>
+        <div class="sub">Users + Meeting History</div>
+      </div>
+      <div style="display:flex;flex-direction:column;gap:8px">
+        <div class="arch-box" style="border-color:#18181b">
+          <div class="title">Vercel</div><div class="sub">Frontend CDN</div>
+        </div>
+        <div class="arch-box" style="border-color:#5a1e00">
+          <div class="title">Render</div><div class="sub">Backend Cloud</div>
+        </div>
+      </div>
+    </div>
+    <div class="card" style="margin-top:4px">
+      <div style="font-size:12px;font-weight:700;color:var(--accent);margin-bottom:8px">Data Flow</div>
+      <div style="display:flex;gap:24px;flex-wrap:wrap">
+        <span style="font-size:12px;color:var(--light)">1️⃣ User opens React app (Vercel CDN)</span>
+        <span style="font-size:12px;color:var(--light)">2️⃣ Login/Register → REST API → MongoDB</span>
+        <span style="font-size:12px;color:var(--light)">3️⃣ Join room → Socket.io handshake</span>
+        <span style="font-size:12px;color:var(--light)">4️⃣ SDP/ICE exchanged via Render server</span>
+        <span style="font-size:12px;color:var(--light)">5️⃣ P2P media stream established directly</span>
+        <span style="font-size:12px;color:var(--light)">6️⃣ Chat routed through Socket.io</span>
+      </div>
+    </div>
+  </div>
+  <footer>
+    <a href="https://github.com/Ajahar-Husain" target="_blank">🔗 github.com/Ajahar-Husain</a>
+    <span class="slide-count">5 / 14</span>
+    <a href="https://www.linkedin.com/in/ajahar-husain/" target="_blank">💼 linkedin.com/in/ajahar-husain</a>
+  </footer>
+</div>
+
+<!-- ═══════════════ SLIDE 6 – TECH STACK ═══════════════ -->
+<div class="slide" id="s6">
+  <h1 class="slide-title accent">🛠️ Tech Stack</h1>
+  <div class="hline" style="margin:6px 40px 14px"></div>
+  <div class="body-area">
+    <div class="stack-row">
+      <div class="stack-label" style="color:var(--accent)">Frontend</div>
+      <div class="pills">
+        <span class="pill">React 18</span><span class="pill">Material UI</span><span class="pill">Framer Motion</span><span class="pill">React Router v6</span><span class="pill">Axios</span>
+      </div>
+    </div>
+    <div class="stack-row">
+      <div class="stack-label" style="color:var(--accent2)">Backend</div>
+      <div class="pills">
+        <span class="pill">Node.js</span><span class="pill">Express.js</span><span class="pill">Socket.io</span><span class="pill">Mongoose</span><span class="pill">CORS</span><span class="pill">dotenv</span>
+      </div>
+    </div>
+    <div class="stack-row">
+      <div class="stack-label" style="color:var(--green)">Database</div>
+      <div class="pills">
+        <span class="pill">MongoDB Atlas</span><span class="pill">Mongoose ODM</span><span class="pill">User Schema</span><span class="pill">MeetingDetails Schema</span>
+      </div>
+    </div>
+    <div class="stack-row">
+      <div class="stack-label" style="color:var(--yellow)">Auth &amp; Security</div>
+      <div class="pills">
+        <span class="pill">JWT</span><span class="pill">bcrypt.js</span><span class="pill">Protected Routes</span><span class="pill">localStorage token</span>
+      </div>
+    </div>
+    <div class="stack-row">
+      <div class="stack-label" style="color:var(--orange)">Real-time</div>
+      <div class="pills">
+        <span class="pill">WebRTC</span><span class="pill">RTCPeerConnection</span><span class="pill">getUserMedia</span><span class="pill">getDisplayMedia</span><span class="pill">Socket.io</span>
+      </div>
+    </div>
+    <div class="stack-row">
+      <div class="stack-label" style="color:var(--red)">DevOps</div>
+      <div class="pills">
+        <span class="pill">GitHub</span><span class="pill">Vercel</span><span class="pill">Render</span><span class="pill">MongoDB Atlas</span>
+      </div>
+    </div>
+    <div class="stack-row">
+      <div class="stack-label" style="color:var(--light)">Styling</div>
+      <div class="pills">
+        <span class="pill">CSS3 Glassmorphism</span><span class="pill">Material UI Theming</span><span class="pill">Responsive Grid</span>
+      </div>
+    </div>
+  </div>
+  <footer>
+    <a href="https://github.com/Ajahar-Husain" target="_blank">🔗 github.com/Ajahar-Husain</a>
+    <span class="slide-count">6 / 14</span>
+    <a href="https://www.linkedin.com/in/ajahar-husain/" target="_blank">💼 linkedin.com/in/ajahar-husain</a>
+  </footer>
+</div>
+
+<!-- ═══════════════ SLIDE 7 – DATABASE ═══════════════ -->
+<div class="slide" id="s7">
+  <h1 class="slide-title accent">🗄️ Database Design</h1>
+  <div class="hline" style="margin:6px 40px 14px"></div>
+  <div class="body-area" style="display:flex;gap:18px">
+    <div class="panel" style="flex:1">
+      <h3 class="accent">📦 User Schema</h3>
+      <div style="display:flex;flex-direction:column;gap:6px">
+        <div class="schema-field"><span class="field-name">_id</span><span class="field-type">ObjectId</span><span class="field-note">auto-generated</span></div>
+        <div class="schema-field"><span class="field-name">name</span><span class="field-type">String</span><span class="field-note">required</span></div>
+        <div class="schema-field"><span class="field-name">username</span><span class="field-type">String</span><span class="field-note">unique, required</span></div>
+        <div class="schema-field"><span class="field-name">password</span><span class="field-type">String</span><span class="field-note">bcrypt hashed</span></div>
+        <div class="schema-field"><span class="field-name">token</span><span class="field-type">String</span><span class="field-note">JWT session token</span></div>
+        <div class="schema-field"><span class="field-name">createdAt</span><span class="field-type">Date</span><span class="field-note">auto timestamp</span></div>
+      </div>
+    </div>
+    <div class="panel" style="flex:1">
+      <h3 class="accent">📦 MeetingDetails Schema</h3>
+      <div style="display:flex;flex-direction:column;gap:6px">
+        <div class="schema-field"><span class="field-name">_id</span><span class="field-type">ObjectId</span><span class="field-note">auto-generated</span></div>
+        <div class="schema-field"><span class="field-name">user_id</span><span class="field-type">String</span><span class="field-note">reference to User</span></div>
+        <div class="schema-field"><span class="field-name">meetingCode</span><span class="field-type">String</span><span class="field-note">room identifier</span></div>
+        <div class="schema-field"><span class="field-name">date</span><span class="field-type">Date</span><span class="field-note">default: Date.now</span></div>
+      </div>
+      <div style="margin-top:20px">
+        <h3 class="accent" style="margin-bottom:12px">🔌 REST API Endpoints</h3>
+        <div style="display:flex;flex-direction:column;gap:6px">
+          <div class="schema-field"><span class="field-name" style="color:var(--green)">POST</span><span class="field-type" style="width:160px">/api/v1/users/register</span><span class="field-note">Create new user</span></div>
+          <div class="schema-field"><span class="field-name" style="color:var(--yellow)">POST</span><span class="field-type" style="width:160px">/api/v1/users/login</span><span class="field-note">Auth + JWT</span></div>
+          <div class="schema-field"><span class="field-name" style="color:var(--accent)">GET</span><span class="field-type" style="width:160px">/api/v1/users/get_all_activity</span><span class="field-note">Meeting history</span></div>
+          <div class="schema-field"><span class="field-name" style="color:var(--green)">POST</span><span class="field-type" style="width:160px">/api/v1/users/add_to_activity</span><span class="field-note">Log meeting</span></div>
+        </div>
+      </div>
+    </div>
+  </div>
+  <footer>
+    <a href="https://github.com/Ajahar-Husain" target="_blank">🔗 github.com/Ajahar-Husain</a>
+    <span class="slide-count">7 / 14</span>
+    <a href="https://www.linkedin.com/in/ajahar-husain/" target="_blank">💼 linkedin.com/in/ajahar-husain</a>
+  </footer>
+</div>
+
+<!-- ═══════════════ SLIDE 8 – CORE MODULES ═══════════════ -->
+<div class="slide" id="s8">
+  <h1 class="slide-title accent">🔧 Core Modules Walkthrough</h1>
+  <div class="hline" style="margin:6px 40px 14px"></div>
+  <div class="body-area">
+    <div class="cols3">
+      <div class="card">
+        <div style="font-size:14px;font-weight:700;color:var(--accent);margin-bottom:4px">🏠 Landing Page</div>
+        <div style="font-size:11px;color:var(--accent2);margin-bottom:8px;font-style:italic">landing.jsx</div>
+        <ul class="pts"><li>Hero section with animated text</li><li>CTA buttons: Login / Register</li><li>Feature highlights section</li></ul>
+      </div>
+      <div class="card">
+        <div style="font-size:14px;font-weight:700;color:var(--accent);margin-bottom:4px">🔐 Authentication</div>
+        <div style="font-size:11px;color:var(--accent2);margin-bottom:8px;font-style:italic">authentication.jsx</div>
+        <ul class="pts"><li>Register &amp; Login form tabs</li><li>JWT stored in localStorage</li><li>Axios POST to REST API</li></ul>
+      </div>
+      <div class="card">
+        <div style="font-size:14px;font-weight:700;color:var(--accent);margin-bottom:4px">🏡 Home Page</div>
+        <div style="font-size:11px;color:var(--accent2);margin-bottom:8px;font-style:italic">home.jsx</div>
+        <ul class="pts"><li>Create / Join meeting</li><li>Meeting code input field</li><li>Navigation to History</li></ul>
+      </div>
+      <div class="card">
+        <div style="font-size:14px;font-weight:700;color:var(--accent);margin-bottom:4px">📹 Video Meet Room</div>
+        <div style="font-size:11px;color:var(--accent2);margin-bottom:8px;font-style:italic">VideoMeet.jsx</div>
+        <ul class="pts"><li>WebRTC getUserMedia stream</li><li>Socket.io room join/leave</li><li>Screen share + chat panel</li><li>Mic / Camera toggle controls</li></ul>
+      </div>
+      <div class="card">
+        <div style="font-size:14px;font-weight:700;color:var(--accent);margin-bottom:4px">📜 Meeting History</div>
+        <div style="font-size:11px;color:var(--accent2);margin-bottom:8px;font-style:italic">history.jsx</div>
+        <ul class="pts"><li>Fetches user's past meetings</li><li>Displays date + meeting code</li><li>Protected — auth required</li></ul>
+      </div>
+      <div class="card">
+        <div style="font-size:14px;font-weight:700;color:var(--accent);margin-bottom:4px">🌐 Socket Manager</div>
+        <div style="font-size:11px;color:var(--accent2);margin-bottom:8px;font-style:italic">socketManager.js</div>
+        <ul class="pts"><li>Creates Socket.io server</li><li>Handles room join/leave events</li><li>Relays SDP, ICE, chat messages</li></ul>
+      </div>
+    </div>
+  </div>
+  <footer>
+    <a href="https://github.com/Ajahar-Husain" target="_blank">🔗 github.com/Ajahar-Husain</a>
+    <span class="slide-count">8 / 14</span>
+    <a href="https://www.linkedin.com/in/ajahar-husain/" target="_blank">💼 linkedin.com/in/ajahar-husain</a>
+  </footer>
+</div>
+
+<!-- ═══════════════ SLIDE 9 – WEBRTC ═══════════════ -->
+<div class="slide" id="s9">
+  <h1 class="slide-title accent">📡 WebRTC &amp; Real-Time Communication</h1>
+  <div class="hline" style="margin:6px 40px 14px"></div>
+  <div class="body-area" style="display:flex;gap:18px">
+    <div class="panel" style="flex:1">
+      <h3 class="yellow">🔄 Call Setup Flow</h3>
+      <div class="step-item"><div class="step-num">1</div><div class="step-text">User joins room via Socket.io <code>join-call</code> event</div></div>
+      <div class="step-item"><div class="step-num">2</div><div class="step-text">Server broadcasts <code>user-joined</code> to all room members</div></div>
+      <div class="step-item"><div class="step-num">3</div><div class="step-text">Initiator creates <code>RTCPeerConnection</code> object</div></div>
+      <div class="step-item"><div class="step-num">4</div><div class="step-text"><code>createOffer()</code> → SDP sent via signalling server</div></div>
+      <div class="step-item"><div class="step-num">5</div><div class="step-text">Remote peer calls <code>createAnswer()</code> and sends back</div></div>
+      <div class="step-item"><div class="step-num">6</div><div class="step-text">ICE candidates exchanged through Socket.io server</div></div>
+      <div class="step-item"><div class="step-num">7</div><div class="step-text">P2P media stream established — video &amp; audio flows directly</div></div>
+      <div class="step-item"><div class="step-num">8</div><div class="step-text">Chat messages routed via server broadcast to room</div></div>
+    </div>
+    <div class="panel" style="flex:1">
+      <h3 class="green">⚡ Socket.io Events</h3>
+      <ul class="pts">
+        <li><strong>join-call</strong> — user enters a meeting room</li>
+        <li><strong>user-joined</strong> — notify existing participants</li>
+        <li><strong>offer</strong> — relay SDP offer to remote peer</li>
+        <li><strong>answer</strong> — relay SDP answer back</li>
+        <li><strong>ice-candidate</strong> — NAT traversal ICE data</li>
+        <li><strong>user-left</strong> — cleanup remote video tile</li>
+        <li><strong>chat-message</strong> — broadcast to all in room</li>
+      </ul>
+      <div style="margin-top:18px">
+        <h3 class="accent" style="margin-bottom:10px">📐 Key WebRTC APIs Used</h3>
+        <ul class="pts">
+          <li><code>navigator.mediaDevices.getUserMedia()</code></li>
+          <li><code>navigator.mediaDevices.getDisplayMedia()</code></li>
+          <li><code>RTCPeerConnection</code> — core P2P object</li>
+          <li><code>RTCRtpSender.replaceTrack()</code> — screen swap</li>
+          <li><code>addTrack() / ontrack</code> — stream handling</li>
+        </ul>
+      </div>
+    </div>
+  </div>
+  <footer>
+    <a href="https://github.com/Ajahar-Husain" target="_blank">🔗 github.com/Ajahar-Husain</a>
+    <span class="slide-count">9 / 14</span>
+    <a href="https://www.linkedin.com/in/ajahar-husain/" target="_blank">💼 linkedin.com/in/ajahar-husain</a>
+  </footer>
+</div>
+
+<!-- ═══════════════ SLIDE 10 – UI/UX ═══════════════ -->
+<div class="slide" id="s10">
+  <h1 class="slide-title accent">🎨 UI / UX Highlights</h1>
+  <div class="hline" style="margin:6px 40px 14px"></div>
+  <div class="body-area">
+    <div class="cols3">
+      <div class="feat-card" style="border-top-color:var(--accent)">
+        <h4>🌌 Glassmorphism Design</h4>
+        <p>Frosted-glass cards using <code>backdrop-filter: blur()</code>, translucent backgrounds, and subtle borders for a premium look.</p>
+      </div>
+      <div class="feat-card" style="border-top-color:var(--accent2)">
+        <h4>✨ Framer Motion</h4>
+        <p>Page entry animations, staggered list effects, button hover micro-animations — all declarative and smooth.</p>
+      </div>
+      <div class="feat-card" style="border-top-color:var(--green)">
+        <h4>📱 Responsive Layout</h4>
+        <p>CSS Flexbox &amp; Grid-based layouts that adapt from 320px mobile to full 2K desktop displays.</p>
+      </div>
+      <div class="feat-card" style="border-top-color:var(--yellow)">
+        <h4>🎭 Material UI</h4>
+        <p>MUI Avatar, IconButton, Tooltip, and other components fully themed to the dark glassmorphism palette.</p>
+      </div>
+      <div class="feat-card" style="border-top-color:var(--orange)">
+        <h4>🔔 Real-time UI Updates</h4>
+        <p>Socket events trigger React state changes instantly — video tiles appear/disappear without any polling.</p>
+      </div>
+      <div class="feat-card" style="border-top-color:var(--red)">
+        <h4>🎬 Dynamic Video Grid</h4>
+        <p>Tile layout dynamically adjusts column count and sizes based on the number of active participants in the room.</p>
+      </div>
+    </div>
+  </div>
+  <footer>
+    <a href="https://github.com/Ajahar-Husain" target="_blank">🔗 github.com/Ajahar-Husain</a>
+    <span class="slide-count">10 / 14</span>
+    <a href="https://www.linkedin.com/in/ajahar-husain/" target="_blank">💼 linkedin.com/in/ajahar-husain</a>
+  </footer>
+</div>
+
+<!-- ═══════════════ SLIDE 11 – DEPLOYMENT ═══════════════ -->
+<div class="slide" id="s11">
+  <h1 class="slide-title accent">☁️ Deployment &amp; Infrastructure</h1>
+  <div class="hline" style="margin:6px 40px 14px"></div>
+  <div class="body-area" style="display:flex;gap:18px">
+    <div class="deploy-card" style="flex:1;border-top-color:var(--accent)">
+      <h3 class="accent">Vercel</h3>
+      <div class="sub">Frontend (React SPA)</div>
+      <ul class="pts">
+        <li>Auto CI/CD from GitHub pushes</li>
+        <li>Global CDN edge delivery</li>
+        <li><code>vercel.json</code> rewrites for SPA routing</li>
+        <li>Env vars managed via Vercel dashboard</li>
+        <li>Live URL: nex-call-liard.vercel.app</li>
+      </ul>
+    </div>
+    <div class="deploy-card" style="flex:1;border-top-color:var(--green)">
+      <h3 class="green">Render</h3>
+      <div class="sub">Backend (Node.js + Socket.io)</div>
+      <ul class="pts">
+        <li>Free-tier managed web service</li>
+        <li>Auto-deploy on every git push</li>
+        <li>PORT + MONGO_URI env vars set</li>
+        <li>WebSocket (Socket.io) supported</li>
+        <li>CORS whitelisted to Vercel origin</li>
+      </ul>
+    </div>
+    <div class="deploy-card" style="flex:1;border-top-color:var(--yellow)">
+      <h3 class="yellow">MongoDB Atlas</h3>
+      <div class="sub">Database (Cloud)</div>
+      <ul class="pts">
+        <li>M0 free cluster (512 MB)</li>
+        <li>IP whitelist 0.0.0.0/0 for Render</li>
+        <li>Connection via <code>MONGO_URI</code> env</li>
+        <li>Mongoose ODM for schema validation</li>
+        <li>Automatic Atlas backups enabled</li>
+      </ul>
+    </div>
+  </div>
+  <footer>
+    <a href="https://github.com/Ajahar-Husain" target="_blank">🔗 github.com/Ajahar-Husain</a>
+    <span class="slide-count">11 / 14</span>
+    <a href="https://www.linkedin.com/in/ajahar-husain/" target="_blank">💼 linkedin.com/in/ajahar-husain</a>
+  </footer>
+</div>
+
+<!-- ═══════════════ SLIDE 12 – CHALLENGES ═══════════════ -->
+<div class="slide" id="s12">
+  <h1 class="slide-title accent">⚙️ Challenges &amp; Solutions</h1>
+  <div class="hline" style="margin:6px 40px 14px"></div>
+  <div class="body-area" style="display:flex;flex-direction:column;gap:10px">
+    <div class="ch-row">
+      <div><div class="ch-title">⚠ ICE Candidate Exchange</div></div>
+      <div><div style="font-size:10px;color:var(--yellow);margin-bottom:3px">PROBLEM</div><div class="ch-problem">WebRTC ICE negotiation failed on certain NAT types, dropping connections before media could flow.</div></div>
+      <div><div style="font-size:10px;color:var(--green);margin-bottom:3px">SOLUTION</div><div class="ch-solution">Buffered ICE candidates and queued them until remote description was set via <code>setRemoteDescription()</code>.</div></div>
+    </div>
+    <div class="ch-row">
+      <div><div class="ch-title">⚠ CORS in Production</div></div>
+      <div><div style="font-size:10px;color:var(--yellow);margin-bottom:3px">PROBLEM</div><div class="ch-problem">Vercel frontend was blocked by Express backend CORS policy after deployment — 403 errors on all API calls.</div></div>
+      <div><div style="font-size:10px;color:var(--green);margin-bottom:3px">SOLUTION</div><div class="ch-solution">Whitelisted exact Vercel domain in CORS config with <code>credentials: true</code> for JWT cookie passing.</div></div>
+    </div>
+    <div class="ch-row">
+      <div><div class="ch-title">⚠ Screen Share Swap</div></div>
+      <div><div style="font-size:10px;color:var(--yellow);margin-bottom:3px">PROBLEM</div><div class="ch-problem">Replacing camera track with screen track caused remote peer to see a black screen.</div></div>
+      <div><div style="font-size:10px;color:var(--green);margin-bottom:3px">SOLUTION</div><div class="ch-solution">Used <code>RTCRtpSender.replaceTrack()</code> to hot-swap the video track without full renegotiation.</div></div>
+    </div>
+    <div class="ch-row">
+      <div><div class="ch-title">⚠ JWT Persistence</div></div>
+      <div><div style="font-size:10px;color:var(--yellow);margin-bottom:3px">PROBLEM</div><div class="ch-problem">Users were logged out on every page refresh — auth state lost from memory.</div></div>
+      <div><div style="font-size:10px;color:var(--green);margin-bottom:3px">SOLUTION</div><div class="ch-solution">Stored JWT in <code>localStorage</code> and rehydrated auth context on app mount using <code>useEffect</code>.</div></div>
+    </div>
+    <div class="ch-row">
+      <div><div class="ch-title">⚠ Duplicate Join Events</div></div>
+      <div><div style="font-size:10px;color:var(--yellow);margin-bottom:3px">PROBLEM</div><div class="ch-problem">Users in same room received duplicate join events on socket reconnect.</div></div>
+      <div><div style="font-size:10px;color:var(--green);margin-bottom:3px">SOLUTION</div><div class="ch-solution">Tracked connected socket IDs server-side; emit <code>user-joined</code> only for genuinely new socket connections.</div></div>
+    </div>
+  </div>
+  <footer>
+    <a href="https://github.com/Ajahar-Husain" target="_blank">🔗 github.com/Ajahar-Husain</a>
+    <span class="slide-count">12 / 14</span>
+    <a href="https://www.linkedin.com/in/ajahar-husain/" target="_blank">💼 linkedin.com/in/ajahar-husain</a>
+  </footer>
+</div>
+
+<!-- ═══════════════ SLIDE 13 – FUTURE SCOPE ═══════════════ -->
+<div class="slide" id="s13">
+  <h1 class="slide-title accent">🚀 Future Scope</h1>
+  <div class="hline" style="margin:6px 40px 14px"></div>
+  <div class="body-area" style="display:grid;grid-template-columns:1fr 1fr;gap:10px">
+    <div class="future-item"><div class="future-icon">🤖</div><div class="future-text"><h4>AI Noise Cancellation</h4><p>WebAudio API + ML model to filter background noise in real-time during calls.</p></div></div>
+    <div class="future-item"><div class="future-icon">📺</div><div class="future-text"><h4>Virtual Backgrounds</h4><p>TensorFlow.js body segmentation to replace camera background with custom images.</p></div></div>
+    <div class="future-item"><div class="future-icon">🗺️</div><div class="future-text"><h4>Breakout Rooms</h4><p>Multi-room support using WebRTC SFU (Selective Forwarding Unit) for larger meetings.</p></div></div>
+    <div class="future-item"><div class="future-icon">📲</div><div class="future-text"><h4>Mobile App (React Native)</h4><p>Port the frontend to a mobile app using Expo and native WebRTC SDK.</p></div></div>
+    <div class="future-item"><div class="future-icon">🔴</div><div class="future-text"><h4>Meeting Recording</h4><p>Server-side recording via MediaRecorder API + S3-compatible cloud storage.</p></div></div>
+    <div class="future-item"><div class="future-icon">🔑</div><div class="future-text"><h4>OAuth / SSO Login</h4><p>Google and GitHub social login via Passport.js for faster onboarding.</p></div></div>
+    <div class="future-item"><div class="future-icon">📊</div><div class="future-text"><h4>Analytics Dashboard</h4><p>Track meeting duration, participant count, and chat volume via MongoDB aggregations.</p></div></div>
+    <div class="future-item"><div class="future-icon">🔒</div><div class="future-text"><h4>E2E Encryption</h4><p>DTLS-SRTP end-to-end encrypted media with custom signalling-layer key exchange.</p></div></div>
+  </div>
+  <footer>
+    <a href="https://github.com/Ajahar-Husain" target="_blank">🔗 github.com/Ajahar-Husain</a>
+    <span class="slide-count">13 / 14</span>
+    <a href="https://www.linkedin.com/in/ajahar-husain/" target="_blank">💼 linkedin.com/in/ajahar-husain</a>
+  </footer>
+</div>
+
+<!-- ═══════════════ SLIDE 14 – THANK YOU ═══════════════ -->
+<div class="slide" id="s14">
+  <div class="big">🙏 Thank You!</div>
+  <div class="sub">"NexCall – Bringing People Closer, One Call at a Time"</div>
+  <div class="qa">❓ Questions &amp; Answers</div>
+  <div style="font-size:15px;color:var(--light);margin-bottom:28px">Feel free to ask about any aspect of the project!</div>
+  <div style="display:flex;gap:16px;justify-content:center;flex-wrap:wrap;margin-bottom:24px">
+    <span class="tag" style="background:#00c8ff22;color:var(--accent);font-size:14px;padding:8px 18px">WebRTC</span>
+    <span class="tag" style="background:#7c3aed22;color:var(--accent2);font-size:14px;padding:8px 18px">React</span>
+    <span class="tag" style="background:#00e67622;color:var(--green);font-size:14px;padding:8px 18px">Node.js</span>
+    <span class="tag" style="background:#ffd70022;color:var(--yellow);font-size:14px;padding:8px 18px">Socket.io</span>
+    <span class="tag" style="background:#ff6b3522;color:var(--orange);font-size:14px;padding:8px 18px">MongoDB</span>
+  </div>
+  <div class="contact">
+    <strong>👤 Ajahar Husain</strong> &nbsp;|&nbsp; Full-Stack Developer<br/><br/>
+    <a href="https://github.com/Ajahar-Husain" target="_blank" style="color:var(--accent);text-decoration:none;margin-right:24px">🔗 github.com/Ajahar-Husain</a>
+    <a href="https://www.linkedin.com/in/ajahar-husain/" target="_blank" style="color:var(--accent2);text-decoration:none">💼 linkedin.com/in/ajahar-husain</a>
+  </div>
+  <footer>
+    <a href="https://github.com/Ajahar-Husain" target="_blank">🔗 github.com/Ajahar-Husain</a>
+    <span class="slide-count">14 / 14</span>
+    <a href="https://www.linkedin.com/in/ajahar-husain/" target="_blank">💼 linkedin.com/in/ajahar-husain</a>
+  </footer>
+</div>
+
+<!-- ── Navigation ── -->
+<div id="nav">
+  <button onclick="go(-1)">◀ Prev</button>
+  <button onclick="go(1)">Next ▶</button>
+</div>
+
+<script>
+const slides = document.querySelectorAll('.slide');
+let cur = 0;
+const prog = document.getElementById('progress');
+
+function show(n) {
+  slides[cur].classList.remove('active');
+  cur = (n + slides.length) % slides.length;
+  slides[cur].classList.add('active');
+  prog.style.width = ((cur + 1) / slides.length * 100) + '%';
+}
+
+function go(dir) { show(cur + dir); }
+
+document.addEventListener('keydown', e => {
+  if (e.key === 'ArrowRight' || e.key === 'ArrowDown' || e.key === ' ') go(1);
+  if (e.key === 'ArrowLeft'  || e.key === 'ArrowUp')                     go(-1);
+});
+
+// init progress
+prog.style.width = (1 / slides.length * 100) + '%';
+</script>
+</body>
+</html>

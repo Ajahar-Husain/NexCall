@@ -56,13 +56,17 @@ export default function VideoMeetComponent() {
 
     const getPermissions = async () => {
         try {
+            let videoAvailableLocal = true;
+            let audioAvailableLocal = true;
             // Check video permission
             try {
                 const videoStream = await navigator.mediaDevices.getUserMedia({ video: true });
+                videoAvailableLocal = true;
                 setVideoAvailable(true);
                 // Stop tracks immediately after check to release device
                 videoStream.getTracks().forEach(track => track.stop());
             } catch (e) {
+                videoAvailableLocal = false;
                 setVideoAvailable(false);
                 console.log("Video permission denied or no device");
             }
@@ -70,10 +74,12 @@ export default function VideoMeetComponent() {
             // Check audio permission
             try {
                 const audioStream = await navigator.mediaDevices.getUserMedia({ audio: true });
+                audioAvailableLocal = true;
                 setAudioAvailable(true);
                 // Stop tracks immediately
                 audioStream.getTracks().forEach(track => track.stop());
             } catch (e) {
+                audioAvailableLocal = false;
                 setAudioAvailable(false);
                 console.log("Audio permission denied or no device");
             }
@@ -85,8 +91,16 @@ export default function VideoMeetComponent() {
             }
 
             // Immediately attempt to get the stream for the preview
-            if (videoAvailable || audioAvailable) {
-                getUserMedia();
+            const hasVideo = videoAvailableLocal || audioAvailableLocal;
+            if (hasVideo) {
+                navigator.mediaDevices.getUserMedia({ video: videoAvailableLocal, audio: audioAvailableLocal })
+                    .then(stream => {
+                        window.localStream = stream;
+                        if (localVideoref.current) {
+                            localVideoref.current.srcObject = stream;
+                        }
+                    })
+                    .catch(e => console.error("Error getting user media:", e));
             }
 
         } catch (error) {
@@ -158,6 +172,13 @@ export default function VideoMeetComponent() {
         setAskForUsername(false);
         connectToSocketServer();
     }
+
+    // Re-attach stream to the new video element after the view switches
+    useEffect(() => {
+        if (!askForUsername && localVideoref.current && window.localStream) {
+            localVideoref.current.srcObject = window.localStream;
+        }
+    }, [askForUsername])
 
     let connectToSocketServer = () => {
         socketRef.current = io.connect(server_url, { secure: false })
@@ -363,7 +384,7 @@ export default function VideoMeetComponent() {
     }
 
     useEffect(() => {
-        if (screen !== undefined) {
+        if (screen === true) {
             getDislayMedia();
         }
     }, [screen])

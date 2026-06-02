@@ -8,9 +8,8 @@ let timeOnline = {}
 export const connectToSocket = (server) => {
     const io = new Server(server, {
         cors: {
-            origin: "*",
+            origin: ["https://nex-call-liard.vercel.app", "http://localhost:3000"],
             methods: ["GET", "POST"],
-            allowedHeaders: ["*"],
             credentials: true
         }
     });
